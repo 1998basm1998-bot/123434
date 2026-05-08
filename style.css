@@ -35,7 +35,6 @@ header h1 span {
     gap: 20px;
 }
 
-/* قسم المشغل */
 .player-section {
     flex: 2;
     display: flex;
@@ -62,7 +61,6 @@ video {
     font-size: 1.5rem;
 }
 
-/* القائمة الجانبية (القنوات) */
 .sidebar {
     flex: 1;
     background-color: #1e293b;
@@ -96,7 +94,6 @@ video {
     padding-right: 5px;
 }
 
-/* تصميم بطاقة القناة */
 .channel-card {
     display: flex;
     align-items: center;
@@ -133,7 +130,6 @@ video {
     padding: 20px;
 }
 
-/* دعم شاشات الموبايل */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
