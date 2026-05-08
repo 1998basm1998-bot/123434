@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فن التقنية الحديثة - مشغل القنوات</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+    <header>
+        <h1>التطبيق الخاص - <span>فن التقنية الحديثة</span></h1>
+        <p>مشغل قنوات IPTV مباشر (مبني على بيانات iptv-org)</p>
+    </header>
+
+    <div class="container">
+        <main class="player-section">
+            <div class="video-container">
+                <video id="tv-player" controls autoplay></video>
+            </div>
+            <h2 id="current-channel-name">اختر قناة للبدء...</h2>
+        </main>
+
+        <aside class="sidebar">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="ابحث عن قناة...">
+            </div>
+            <div id="channels-list" class="channels-grid">
+                <div class="loading">جاري تحميل القنوات...</div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
