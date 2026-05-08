@@ -6,11 +6,13 @@ const searchInput = document.getElementById('search-input');
 let allChannels = [];
 let hls = null;
 
-// رابط قائمة القنوات العربية من مشروع iptv-org
-// (يمكنك تغييره إلى رابط العراق iq.m3u أو غيره)
-const PLAYLIST_URL = 'http://رابط-السيرفر-المدفوع-الخاص-بك.m3u';
+// ==========================================
+// 🔴 ضع هنا رابط الـ M3U المدفوع الخاص بك مستقبلاً
+// (تركته الآن على الرابط المجاني للتجربة)
+// ==========================================
+const PLAYLIST_URL = 'https://iptv-org.github.io/iptv/languages/ara.m3u';
 
-// 1. دالة لجلب البيانات
+// دالة جلب البيانات
 async function fetchChannels() {
     try {
         const response = await fetch(PLAYLIST_URL);
@@ -23,7 +25,7 @@ async function fetchChannels() {
     }
 }
 
-// 2. دالة لتحليل ملف m3u وتحويله إلى كائنات برمجية (Objects)
+// دالة تحليل ملف M3U
 function parseM3U(m3u) {
     const lines = m3u.split('\n');
     const channels = [];
@@ -32,20 +34,15 @@ function parseM3U(m3u) {
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         
-        // استخراج بيانات القناة (اللوجو والاسم)
         if (line.startsWith('#EXTINF:')) {
-            // البحث عن رابط الشعار
             const logoMatch = line.match(/tvg-logo="([^"]+)"/);
             currentChannel.logo = logoMatch && logoMatch[1] ? logoMatch[1] : 'https://via.placeholder.com/50?text=TV';
 
-            // البحث عن اسم القناة (بعد آخر فاصلة)
             const splitByComma = line.split(',');
             currentChannel.name = splitByComma[splitByComma.length - 1].trim();
         } 
-        // استخراج رابط البث
         else if (line.startsWith('http')) {
             currentChannel.url = line;
-            // حفظ القناة وتفريغ الكائن للقناة التالية
             channels.push(currentChannel);
             currentChannel = {}; 
         }
@@ -53,17 +50,16 @@ function parseM3U(m3u) {
     return channels;
 }
 
-// 3. دالة لعرض القنوات في الواجهة
+// دالة عرض القنوات في الواجهة
 function renderChannels(channels) {
-    channelsListElement.innerHTML = ''; // مسح علامة "جاري التحميل"
+    channelsListElement.innerHTML = ''; 
 
     if (channels.length === 0) {
-        channelsListElement.innerHTML = '<div class="loading">لم يتم العثور على قنوات.</div>';
+        channelsListElement.innerHTML = '<div class="loading">لم يتم العثور على نتائج.</div>';
         return;
     }
 
     channels.forEach(channel => {
-        // إنشاء بطاقة القناة
         const card = document.createElement('div');
         card.className = 'channel-card';
         card.innerHTML = `
@@ -71,7 +67,6 @@ function renderChannels(channels) {
             <h3>${channel.name}</h3>
         `;
         
-        // حدث عند النقر على القناة
         card.addEventListener('click', () => {
             playStream(channel.url, channel.name);
         });
@@ -80,31 +75,40 @@ function renderChannels(channels) {
     });
 }
 
-// 4. دالة تشغيل الفيديو باستخدام Hls.js
+// دالة تشغيل الفيديو (مع إعدادات منع التقطيع)
 function playStream(url, name) {
     currentChannelName.textContent = `يتم العرض الآن: ${name}`;
 
-    // إيقاف البث القديم إذا كان موجوداً
     if (hls) {
         hls.destroy();
     }
 
     if (Hls.isSupported()) {
-        hls = new Hls();
+        // ==========================================
+        // 🟢 إعدادات منع التقطيع (Anti-Buffering) 
+        // ==========================================
+        const hlsConfig = {
+            maxBufferLength: 30, // تحميل 30 ثانية من البث مسبقاً لتفادي تقطيع الإنترنت
+            maxMaxBufferLength: 600, // الحد الأقصى لتخزين الفيديو المؤقت
+            maxBufferSize: 60 * 1000 * 1000, // السماح بحجز ذاكرة تصل لـ 60 ميجابايت للبث
+            liveSyncDurationCount: 3, // تأخير البث ثواني معدودة لضمان الاستقرار
+            enableWorker: true, // تسريع المعالجة عبر الـ Web Workers
+            lowLatencyMode: false // إيقاف وضع الزمن المنخفض لضمان عدم التقطيع
+        };
+
+        hls = new Hls(hlsConfig);
         hls.loadSource(url);
         hls.attachMedia(videoElement);
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
             videoElement.play();
         });
         
-        // معالجة الأخطاء إذا توقف البث
         hls.on(Hls.Events.ERROR, function (event, data) {
             if (data.fatal) {
                 console.error("HLS Error:", data);
             }
         });
     } 
-    // للمتصفحات التي تدعم hls مباشرة مثل Safari
     else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
         videoElement.src = url;
         videoElement.addEventListener('loadedmetadata', function () {
@@ -113,12 +117,12 @@ function playStream(url, name) {
     }
 }
 
-// 5. ميزة البحث في القنوات
+// ميزة البحث
 searchInput.addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     const filtered = allChannels.filter(channel => channel.name.toLowerCase().includes(term));
     renderChannels(filtered);
 });
 
-// بدء جلب البيانات عند تشغيل الصفحة
+// بدء التشغيل
 fetchChannels();
