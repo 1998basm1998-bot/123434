@@ -8,7 +8,7 @@ let hls = null;
 
 // رابط قائمة القنوات العربية من مشروع iptv-org
 // (يمكنك تغييره إلى رابط العراق iq.m3u أو غيره)
-const PLAYLIST_URL = 'https://iptv-org.github.io/iptv/languages/ara.m3u';
+const PLAYLIST_URL = 'http://رابط-السيرفر-المدفوع-الخاص-بك.m3u';
 
 // 1. دالة لجلب البيانات
 async function fetchChannels() {
